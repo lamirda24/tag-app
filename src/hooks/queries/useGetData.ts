@@ -2,10 +2,10 @@ import { getDataTags } from "@/api";
 import { GetDataParamsType } from "@/api/index.type";
 import { useQuery } from "@tanstack/react-query";
 
-export const useGetData = (data: GetDataParamsType) => {
+export const useGetData = ({ search }: GetDataParamsType) => {
   return useQuery({
-    queryKey: ["get-data", data],
-    queryFn: () => getDataTags(data),
+    queryKey: ["get-data", search],
+    queryFn: () => getDataTags({ search }),
     refetchOnWindowFocus: false
   });
 };

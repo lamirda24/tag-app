@@ -3,15 +3,17 @@ import { useGetData } from "./queries/useGetData";
 import { TransformedData } from "@/api/index.type";
 
 export const useIndex = () => {
-  const [data, setData] = useState<TransformedData[] | null>([]);
+  const [data, setData] = useState<TransformedData[]>([]);
   const [inputValue, setInputValue] = useState<string>("");
-  const [serachValue, setSearchValue] = useState<string | null>(null);
+  const [serachValue, setSearchValue] = useState<string | null>("");
+  const [option, setOption] = useState<TransformedData[]>([]);
 
   const { data: dataTags, isLoading, isSuccess } = useGetData({ search: serachValue ?? "" });
 
   useEffect(() => {
     if (isSuccess) {
       setData(dataTags);
+      setOption(dataTags);
     }
   }, [dataTags, isSuccess]);
 
@@ -21,6 +23,9 @@ export const useIndex = () => {
     inputValue,
     setInputValue,
     dataTags,
-    isLoading
+    isLoading,
+    option,
+    setOption,
+    setSearchValue
   };
 };

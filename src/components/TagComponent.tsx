@@ -1,36 +1,29 @@
 "use client";
 
-import { TransformedData } from "@/api/index.type";
 import { useIndex } from "@/hooks/index.hook";
 import React, { useState } from "react";
-import ReactSelect from "react-select";
-import ReactSelectCreatable from "react-select/creatable";
+
+import InputComponent from "./InputComponent";
+import { useDeleteTag } from "@/hooks/mutations/useDeleteTag";
 
 const TagComponent = () => {
   const [add, setAdd] = useState<boolean>(false);
 
-  const { data, inputValue, setInputValue } = useIndex();
+  const { data, setData, isLoading, option, setOption } = useIndex();
+  const { mutateAsync } = useDeleteTag();
 
-  const handleChange = (e: any) => {
-    const { value } = e.target;
-    setInputValue(value);
-  };
-
-  const handleOnBlur = (e: any) => {
-    const { value } = e.target;
-    console.log(e.target.value);
-    return;
-
-    const payload: TransformedData = {
-      id: Math.floor(Math.random() * 100),
-      value
-    };
-    if (value) {
-      data?.push(payload);
-      setAdd(false);
-      setInputValue("");
+  const handleDelete = async (item: any) => {
+    try {
+      const res = await mutateAsync(item);
+      if (res) {
+        const tempData = data?.filter((data) => data?.id !== item);
+        setData(tempData);
+      }
+    } catch (e: any) {
+      console.log(e);
     }
   };
+
   return (
     <div className="flex w-full max-w-2xl h-[100vh] bg-red-50 mx-auto flex-col">
       <div className="flex flex-col mt-[40px] px-[25px]">
@@ -39,11 +32,16 @@ const TagComponent = () => {
           <div className="w-full border border-1 border-green-600 rounded-xl py-[8px] px-[12px] flex flex-row items-center gap-[10px] flex-wrap h-fit-content">
             {data?.map((item, index: number) => (
               <>
-                <div className="border border-1 border-[blue] rounded-xl p-2">{item?.value}</div>
+                <div className="border border-1 border-[blue] rounded-xl p-2 flex items-center gap-4">
+                  <p>{item?.value}</p>
+                  <button className="hover:bg-gray-600 w-[20px] h-auto rounded-full" onClick={() => handleDelete(item.id)}>
+                    x
+                  </button>
+                </div>
                 {index === data?.length - 1 && (
                   <>
                     {add && (
-                      <InputComponent data={data} onClick={() => {}} handleOnBlur={handleOnBlur} handleChange={handleChange} value={inputValue} />
+                      <InputComponent data={option} setData={setData} isLoading={isLoading} isAdd={add} setIsAdd={setAdd} setOption={setOption} />
                     )}
                     <button onClick={() => setAdd(true)}>+</button>
                   </>
@@ -58,14 +56,3 @@ const TagComponent = () => {
 };
 
 export default TagComponent;
-
-const InputComponent = ({ data, isLoading, onClick, handleChange, handleOnBlur, value }: any) => {
-  return (
-    <ReactSelectCreatable
-      options={data}
-      getOptionLabel={(option: any) => option.value}
-      getOptionValue={(option) => option?.value}
-      onBlur={handleOnBlur}
-    />
-  );
-};
